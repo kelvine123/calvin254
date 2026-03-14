@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Borehole Completion Report Generator - Booker Investment Group
+    </title>
+    <meta
+      name="description"
+      content="Professional borehole completion report generator for water well drilling projects. Generate comprehensive WRMA-compliant reports with ease."
+    />
+    <meta
+      name="keywords"
+      content="borehole, water well, drilling, completion report, WRMA, hydrogeology, water resources"
+    />
+
+    <!-- Icons -->
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+      rel="stylesheet"
+    />
+    
+    <!-- Icons -->
+    <link href="style.css" rel="stylesheet" />
+
+    <!-- Chart.js for graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- jsPDF and html2canvas for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<!-- Chart.js for graphs -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Add canvas-toBlob polyfill for better compatibility -->
+<script>
+// Canvas toBlob polyfill
+if (!HTMLCanvasElement.prototype.toBlob) {
+  Object.defineProperty(HTMLCanvasElement.prototype, 'toBlob', {
+    value: function (callback, type, quality) {
+      var dataURL = this.toDataURL(type, quality).split(',')[1];
+      setTimeout(function() {
+        var binStr = atob(dataURL),
+            len = binStr.length,
+            arr = new Uint8Array(len);
+        for (var i = 0; i < len; i++) {
+          arr[i] = binStr.charCodeAt(i);
+        }
+        callback(new Blob([arr], {type: type || 'image/png'}));
+      });
+    }
+  });
+}
+</script>
+  </head>
+  <body>
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="container topbar-inner">
+        <div class="topbar-left">
+          <button
+            class="btn"
+            onclick="window.open('https://mail.google.com/mail/?view=cm&fs=1&to=bookerinvestmentgroupltd@gmail.com&su=Inquiry%20from%20Booker%20site&body=Hello%20Booker%20Team,%0A%0A...', '_blank')"
+          >
+            <i class="fa-solid fa-pen"></i> Write a message
+          </button>
+
+          <a
+            class="btn outline"
+            href="https://wa.me/254722536867?text=Hello%20Booker%20Investment%20Group%2C%20I%27d%20like%20to%20learn%20more%20about%20your%20services."
+            target="_blank"
+            rel="noopener"
+          >
+            <i class="fa-brands fa-whatsapp"></i> WhatsApp
+          </a>
+
+          <button
+            class="btn outline"
+            onclick="window.open('https://maps.google.com/?q=Shell+Petrol+Station+Nyamasaria%2C+Kisumu','_blank','noopener')"
+          >
+            <i class="fa-solid fa-map"></i> Visit Us
+          </button>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Visible when logged in -->
+          <div id="user-info" class="hidden" aria-hidden="true">
+            <span id="user-name"></span>
+            <button id="logout-btn" onclick="logout()" class="btn outline small">Logout</button>
+          </div>
+
+          <!-- Visible when logged out -->
+          <div id="auth-buttons">
+            <button id="login-btn" onclick="showAuthModal()" class="btn outline small">Login</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Brand -->
+    <header class="brand">
+      <div class="container brandbox">
+        <img
+          class="brand-logo"
+          src="images/BKM.png"
+          alt="Booker Investment logo"
+        />
+        <div>
+          <div class="brand-name">BOOKER INVESTMENT GROUP Ltd</div>
+          <div class="brand-tag">Engineering Solutions to Better Life</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Nav -->
+    <nav class="nav">
+      <div class="container nav-inner">
+        <button class="hamburger" aria-label="Toggle menu" id="menuBtn">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <ul class="menu" id="menu">
+          <li><a href="project.html">Our Work</a></li>
+          <li><a href="report.html" class="active">Reports</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- Notification Container -->
+    <div id="notification" class="notification hidden">
+      <span id="notification-text"></span>
+      <button onclick="hideNotification()" class="notification-close">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+    <!-- Add this right after the notification container -->
+    <div id="auth-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Login to Booker Investment Group</h2>
+          <button class="modal-close" onclick="hideAuthModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="auth-tabs">
+            <button class="auth-tab active" data-tab="login">Login</button>
+            <button class="auth-tab" data-tab="register">Register</button>
+          </div>
+
+          <form id="login-form" class="auth-form active">
+            <div class="form-group">
+              <label for="login-email">Email</label>
+              <input type="email" id="login-email" required />
+            </div>
+            <div class="form-group">
+              <label for="login-password">Password</label>
+              <input type="password" id="login-password" required />
+            </div>
+            <button type="submit" class="btn btn-primary">Login</button>
+            <a href="#" id="forgot-password-link" class="forgot-password-link">Forgot Password?</a>
+          </form>
+
+          <form id="register-form" class="auth-form">
+            <div class="form-group">
+              <label for="register-firstname">First Name</label>
+              <input type="text" id="register-firstname" required />
+            </div>
+            <div class="form-group">
+              <label for="register-lastname">Last Name</label>
+              <input type="text" id="register-lastname" required />
+            </div>
+            <div class="form-group">
+              <label for="register-email">Email</label>
+              <input type="email" id="register-email" required />
+            </div>
+            <div class="form-group">
+              <label for="register-password"
+                >Password (min. 6 characters)</label
+              >
+              <input
+                type="password"
+                id="register-password"
+                minlength="6"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="register-company">Company (optional)</label>
+              <input type="text" id="register-company" />
+            </div>
+            <button type="submit" class="btn btn-primary">Register</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div id="forgot-password-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Forgot Password</h2>
+          <button class="modal-close" onclick="hideForgotPasswordModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="forgot-password-form" class="auth-form active">
+            <p>Enter your email address and we will send you a link to reset your password.</p>
+            <div class="form-group">
+              <label for="forgot-email">Email</label>
+              <input type="email" id="forgot-email" required />
+            </div>
+            <button type="submit" class="btn btn-primary">Send Reset Link</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container">
+        <div class="report-header">
+          <h1 class="report-title">Borehole Completion Report Generator</h1>
+          <p class="report-subtitle">
+            Create professional borehole completion reports
+          </p>
+        </div>
+
+        <div class="report-layout">
+          <!-- Input Section -->
+          <div class="input-section">
+            <div class="tabs-container">
+              <div class="tab-list">
+                <button class="tab-button active" data-tab="client">
+                  Client
+                </button>
+                <button class="tab-button" data-tab="contractor">
+                  Contractor
+                </button>
+                <button class="tab-button" data-tab="wrma-form">WRMA Form</button>
+                <button class="tab-button" data-tab="introduction">
+                  Introduction
+                </button>
+                <button class="tab-button" data-tab="borehole">Borehole</button>
+                <button class="tab-button" data-tab="borehole-params">
+                  Borehole Parameters
+                </button>
+                <!--<button class="tab-button" data-tab="hydraulics">
+                  Hydraulics
+                </button>-->
+                <button class="tab-button" data-tab="pumping-test">
+                  Pumping Test
+                </button>
+                <button class="tab-button" data-tab="recovery-data">
+                  Recovery Data
+                </button>
+               <button class="tab-button" data-tab="water-quality">
+                   Calculations
+                </button>
+                <button class="tab-button" data-tab="recommendations">
+                  Recommendations
+                </button>
+              </div>
+
+              <!-- Client Tab -->
+              <div class="tab-content active" id="client-tab">
+                <h3 class="tab-title">Client Information</h3>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="client-name">Client Name</label>
+                    <input
+                      type="text"
+                      id="client-name"
+                      name="clientName"
+                      class="form-input"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="client-address">Client Address</label>
+                    <textarea
+                      id="client-address"
+                      name="clientAddress"
+                      class="form-textarea"
+                    ></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label for="project-location">Project Location</label>
+                    <input
+                      type="text"
+                      id="project-location"
+                      name="projectLocation"
+                      class="form-input"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="project-coordinator">Project Coordinator</label>
+                    <input
+                      type="text"
+                      id="project-coordinator"
+                      name="projectCoordinator"
+                      class="form-input"
+                    />
+                  </div>
+                </div>
+              </div>
+              <!-- Contractor Tab -->
+              <div class="tab-content" id="contractor-tab">
+                <h3 class="tab-title">Contractor Information</h3>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="contractor-name">Contractor Name</label>
+                    <input
+                      type="text"
+                      id="contractor-name"
+                      name="contractorName"
+                      class="form-input"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="contractor-address">Contractor Address</label>
+                    <textarea
+                      id="contractor-address"
+                      name="contractorAddress"
+                      class="form-textarea"
+                    ></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label for="drilling-license">Drilling License</label>
+                    <input
+                      type="text"
+                      id="drilling-license"
+                      name="drillingLicense"
+                      class="form-input"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="drilling-permit">Drilling Permit</label>
+                    <input
+                      type="text"
+                      id="drilling-permit"
+                      name="drillingPermit"
+                      class="form-input"
+                    />
+                  </div>
+                </div>
+              </div>
+<!-- WRMA Form Tab -->
+<div class="tab-content" id="wrma-form-tab">
+  <h3 class="tab-title">WRMA Borehole Completion Form</h3>
+  
+  <!-- General Information -->
+  <div class="section-card">
+    <h4 class="section-subtitle">A. General Information</h4>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="wrma-applicant-name">Applicant Name</label>
+        <input type="text" id="wrma-applicant-name" name="wrmaApplicantName" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-category">Category</label>
+        <select id="wrma-category" name="wrmaCategory" class="form-input">
+          <option value="">Select Category</option>
+          <option value="Individual">Individual</option>
+          <option value="Company">Company</option>
+          <option value="Institution">Institution</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="wrma-id-number">ID Number/Certificate Number</label>
+        <input type="text" id="wrma-id-number" name="wrmaIdNumber" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-pin-number">PIN Number</label>
+        <input type="text" id="wrma-pin-number" name="wrmaPinNumber" class="form-input">
+      </div>
+      <div class="form-group full-width">
+        <label for="wrma-physical-address">Physical Address</label>
+        <textarea id="wrma-physical-address" name="wrmaPhysicalAddress" class="form-textarea" rows="2"></textarea>
+      </div>
+    </div>
+    
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="wrma-lr-number">L.R. Number</label>
+        <input type="text" id="wrma-lr-number" name="wrmaLrNumber" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-village-ward">Village/Ward</label>
+        <input type="text" id="wrma-village-ward" name="wrmaVillageWard" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-sub-location">Sub-location</label>
+        <input type="text" id="wrma-sub-location" name="wrmaSubLocation" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-location">Location</label>
+        <input type="text" id="wrma-location" name="wrmaLocation" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-division">Division</label>
+        <input type="text" id="wrma-division" name="wrmaDivision" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-district">District</label>
+        <input type="text" id="wrma-district" name="wrmaDistrict" class="form-input">
+      </div>
+    </div>
+  </div>
+
+  <!-- Contractor Information -->
+  <div class="section-card">
+    <h4 class="section-subtitle">B. Contractor Information</h4>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="wrma-contractor-name">Contractor Name</label>
+        <input type="text" id="wrma-contractor-name" name="wrmaContractorName" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-license-number">License Number</label>
+        <input type="text" id="wrma-license-number" name="wrmaLicenseNumber" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-gazetted-date">Gazetted On</label>
+        <input type="text" id="wrma-gazetted-date" name="wrmaGazettedDate" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-drilling-supervisor">Drilling Supervisor</label>
+        <input type="text" id="wrma-drilling-supervisor" name="wrmaDrillingSupervisor" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-drill-rig-type">Type and Make of Drill Rig</label>
+        <input type="text" id="wrma-drill-rig-type" name="wrmaDrillRigType" class="form-input">
+      </div>
+    </div>
+  </div>
+
+  <!-- Borehole Construction Details -->
+  <div class="section-card">
+    <h4 class="section-subtitle">C. Borehole Construction Details</h4>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="wrma-borehole-type">Type of Borehole</label>
+        <select id="wrma-borehole-type" name="wrmaBoreholeType" class="form-input">
+          <option value="">Select Type</option>
+          <option value="Drilled">Drilled</option>
+          <option value="Driven">Driven</option>
+          <option value="Bored">Bored</option>
+          <option value="Jetted">Jetted</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="wrma-water-use">Intended Use of Water</label>
+        <select id="wrma-water-use" name="wrmaWaterUse" class="form-input">
+          <option value="">Select Use</option>
+          <option value="Domestic">Domestic</option>
+          <option value="Public WS">Public W.S.</option>
+          <option value="Irrigation">Irrigation</option>
+          <option value="Industries">Industries</option>
+          <option value="Stock">Stock</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="wrma-drilling-start">Drilling Start Date</label>
+        <input type="date" id="wrma-drilling-start" name="wrmaDrillingStart" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-drilling-end">Drilling End Date</label>
+        <input type="date" id="wrma-drilling-end" name="wrmaDrillingEnd" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-total-depth">Total Depth (m)</label>
+        <input type="number" step="0.01" id="wrma-total-depth" name="wrmaTotalDepth" class="form-input">
+      </div>
+    </div>
+
+    <!-- Hole Diameter Section -->
+    <div class="sub-section">
+      <h5>Hole Diameter</h5>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="wrma-hole-diameter-1">Diameter (mm)</label>
+          <input type="number" id="wrma-hole-diameter-1" name="wrmaHoleDiameter1" class="form-input">
+        </div>
+        <div class="form-group">
+          <label for="wrma-hole-from-1">From (m)</label>
+          <input type="number" step="0.01" id="wrma-hole-from-1" name="wrmaHoleFrom1" class="form-input">
+        </div>
+        <div class="form-group">
+          <label for="wrma-hole-to-1">To (m)</label>
+          <input type="number" step="0.01" id="wrma-hole-to-1" name="wrmaHoleTo1" class="form-input">
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="wrma-hole-diameter-2">Diameter (mm)</label>
+          <input type="number" id="wrma-hole-diameter-2" name="wrmaHoleDiameter2" class="form-input">
+        </div>
+        <div class="form-group">
+          <label for="wrma-hole-from-2">From (m)</label>
+          <input type="number" step="0.01" id="wrma-hole-from-2" name="wrmaHoleFrom2" class="form-input">
+        </div>
+        <div class="form-group">
+          <label for="wrma-hole-to-2">To (m)</label>
+          <input type="number" step="0.01" id="wrma-hole-to-2" name="wrmaHoleTo2" class="form-input">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Casing and Screen Details -->
+  <div class="section-card">
+    <h4 class="section-subtitle">D. Casing and Screen Details</h4>
+    
+    <!-- Plain Casing -->
+    <div class="sub-section">
+      <h5>Plain Casing</h5>
+      <div class="wrma-casing-section">
+        <div class="section-header">
+          <h6>Plain Casing Details</h6>
+          <button type="button" onclick="addWrmaPlainCasingRow()" class="btn-add">
+            <i class="fa-solid fa-plus"></i> Add Casing
+          </button>
+        </div>
+        <table class="wrma-casing-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Diameter (mm)</th>
+              <th>Length (m)</th>
+              <th>From (m)</th>
+              <th>To (m)</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="wrma-plain-casing-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Slotted/Perforated Casing -->
+    <div class="sub-section">
+      <h5>Slotted/Perforated Casing</h5>
+      <div class="form-group">
+        <label for="wrma-screen-openings">Size and Description of Openings</label>
+        <input type="text" id="wrma-screen-openings" name="wrmaScreenOpenings" class="form-input">
+      </div>
+      <div class="wrma-casing-section">
+        <div class="section-header">
+          <h6>Slotted Casing Details</h6>
+          <button type="button" onclick="addWrmaSlottedCasingRow()" class="btn-add">
+            <i class="fa-solid fa-plus"></i> Add Casing
+          </button>
+        </div>
+        <table class="wrma-casing-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Diameter (mm)</th>
+              <th>Length (m)</th>
+              <th>From (m)</th>
+              <th>To (m)</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="wrma-slotted-casing-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Gravel Pack -->
+    <div class="sub-section">
+      <h5>Gravel Pack</h5>
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="wrma-gravel-size">Size of grains (mm)</label>
+          <input type="text" id="wrma-gravel-size" name="wrmaGravelSize" class="form-input">
+        </div>
+        <div class="form-group">
+          <label for="wrma-gravel-roundness">Roundness</label>
+          <select id="wrma-gravel-roundness" name="wrmaGravelRoundness" class="form-input">
+            <option value="">Select</option>
+            <option value="Good">Good</option>
+            <option value="Fair">Fair</option>
+            <option value="Poor">Poor</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="wrma-gravel-volume">Volume inserted (KG)</label>
+          <input type="number" id="wrma-gravel-volume" name="wrmaGravelVolume" class="form-input">
+        </div>
+        <div class="form-group">
+          <label for="wrma-gravel-from">From (m)</label>
+          <input type="number" step="0.01" id="wrma-gravel-from" name="wrmaGravelFrom" class="form-input">
+        </div>
+        <div class="form-group">
+          <label for="wrma-gravel-to">To (m)</label>
+          <input type="number" step="0.01" id="wrma-gravel-to" name="wrmaGravelTo" class="form-input">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Aquifer Information -->
+  <div class="section-card">
+    <h4 class="section-subtitle">E. Aquifer Information</h4>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="wrma-first-water-struck">1st Water Struck at (m)</label>
+        <input type="number" step="0.01" id="wrma-first-water-struck" name="wrmaFirstWaterStruck" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-main-aquifer-struck">Main Aquifer Struck at (m)</label>
+        <input type="number" step="0.01" id="wrma-main-aquifer-struck" name="wrmaMainAquiferStruck" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-water-bearing-material">Water bearing material</label>
+        <input type="text" id="wrma-water-bearing-material" name="wrmaWaterBearingMaterial" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-aquifer-from">From (m)</label>
+        <input type="number" step="0.01" id="wrma-aquifer-from" name="wrmaAquiferFrom" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-aquifer-to">To (m)</label>
+        <input type="number" step="0.01" id="wrma-aquifer-to" name="wrmaAquiferTo" class="form-input">
+      </div>
+    </div>
+  </div>
+
+  <!-- Yield and Pumping Test -->
+  <div class="section-card">
+    <h4 class="section-subtitle">F. Yield and Pumping Test</h4>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="wrma-swl">Static Water Level (SWL) (m)</label>
+        <input type="number" step="0.01" id="wrma-swl" name="wrmaSwl" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-pwl">Pumping Water Level (PWL) (m)</label>
+        <input type="number" step="0.01" id="wrma-pwl" name="wrmaPwl" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-discharge">Discharge (litres per minute)</label>
+        <input type="number" step="0.01" id="wrma-discharge" name="wrmaDischarge" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-pumping-hours">After pumping (hours)</label>
+        <input type="number" step="0.01" id="wrma-pumping-hours" name="wrmaPumpingHours" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-recovery-time">Recovered to SWL in (minutes)</label>
+        <input type="number" step="0.01" id="wrma-recovery-time" name="wrmaRecoveryTime" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-expected-discharge">Expected production discharge 70% (litres per hour)</label>
+        <input type="number" step="0.01" id="wrma-expected-discharge" name="wrmaExpectedDischarge" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-pump-setting">With pump set at (m below surface)</label>
+        <input type="number" step="0.01" id="wrma-pump-setting" name="wrmaPumpSetting" class="form-input">
+      </div>
+    </div>
+  </div>
+
+  <!-- Water Quality -->
+  <div class="section-card">
+    <h4 class="section-subtitle">G. Water Quality</h4>
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="wrma-sample-collected">Sample Collected</label>
+        <select id="wrma-sample-collected" name="wrmaSampleCollected" class="form-input">
+          <option value="">Select</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="wrma-sample-time">Collected at (hour)</label>
+        <input type="text" id="wrma-sample-time" name="wrmaSampleTime" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-sample-date">On (date)</label>
+        <input type="date" id="wrma-sample-date" name="wrmaSampleDate" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-sediment">Sediment</label>
+        <input type="text" id="wrma-sediment" name="wrmaSediment" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-taste">Taste</label>
+        <input type="text" id="wrma-taste" name="wrmaTaste" class="form-input">
+      </div>
+      <div class="form-group">
+        <label for="wrma-odour">Odour</label>
+        <input type="text" id="wrma-odour" name="wrmaOdour" class="form-input">
+      </div>
+    </div>
+  </div>
+
+  <!-- Remarks and Signatures -->
+  <div class="section-card">
+    <h4 class="section-subtitle">H. Remarks and Signatures</h4>
+    <div class="form-group full-width">
+      <label for="wrma-remarks">Remarks</label>
+      <textarea id="wrma-remarks" name="wrmaRemarks" class="form-textarea" rows="4"></textarea>
+    </div>
+    
+    <div class="signature-section">
+      <div class="signature-group">
+        <label for="wrma-drilling-supervisor-signature">Drilling Supervisor Signature</label>
+        <input type="text" id="wrma-drilling-supervisor-signature" name="wrmaDrillingSupervisorSignature" class="form-input">
+      </div>
+      <div class="signature-group">
+        <label for="wrma-drilling-supervisor-name">Name</label>
+        <input type="text" id="wrma-drilling-supervisor-name" name="wrmaDrillingSupervisorName" class="form-input">
+      </div>
+      <div class="signature-group">
+        <label for="wrma-drilling-supervisor-date">Date</label>
+        <input type="date" id="wrma-drilling-supervisor-date" name="wrmaDrillingSupervisorDate" class="form-input">
+      </div>
+    </div>
+
+    <div class="signature-section">
+      <div class="signature-group">
+        <label for="wrma-contractor-signature">Contractor Signature</label>
+        <input type="text" id="wrma-contractor-signature" name="wrmaContractorSignature" class="form-input">
+      </div>
+      <div class="signature-group">
+        <label for="wrma-contractor-name">Name</label>
+        <input type="text" id="wrma-contractor-name" name="wrmaContractorName" class="form-input">
+      </div>
+      <div class="signature-group">
+        <label for="wrma-contractor-date">Date</label>
+        <input type="date" id="wrma-contractor-date" name="wrmaContractorDate" class="form-input">
+      </div>
+    </div>
+  </div>
+</div>
+              <!-- Introduction Tab -->
+<div class="tab-content" id="introduction-tab">
+  <h3 class="tab-title">1.0 Introduction</h3>
+  
+  <!-- Introduction Text -->
+  <div class="form-group full-width">
+    <label for="introduction-text">Introduction</label>
+    <textarea
+      id="introduction-text"
+      name="introductionText"
+      class="form-textarea"
+      rows="6"
+    ></textarea>
+  </div>
+
+  <!-- 1.1 Scope of the Project -->
+  <div class="form-group full-width">
+    <label for="project-scope">1.1 Scope of the Project</label>
+    <textarea
+      id="project-scope"
+      name="projectScope"
+      class="form-textarea"
+      rows="8"
+    ></textarea>
+  </div>
+
+  <!-- 1.2 Drilling Process and Activities -->
+  <div class="form-group full-width">
+    <label for="drilling-process">1.2 Drilling Process and Activities</label>
+    <textarea
+      id="drilling-process"
+      name="drillingProcess"
+      class="form-textarea"
+      rows="10"
+    ></textarea>
+  </div>
+</div>
+              <!-- Borehole Tab -->
+<div class="tab-content" id="borehole-tab">
+  <h3 class="tab-title">Borehole Details</h3>
+  <div class="form-grid">
+    <div class="form-group">
+      <label for="borehole-coordinates">GPS Coordinates</label>
+      <input
+        type="text"
+        id="borehole-coordinates"
+        name="boreholeCoordinates"
+        class="form-input"
+      />
+    </div>
+    <div class="form-group">
+      <label for="ground-elevation">Ground Elevation (m)</label>
+      <input
+        type="number"
+        id="ground-elevation"
+        name="groundElevation"
+        class="form-input"
+      />
+    </div>
+    <div class="form-group">
+      <label for="total-depth">Total Depth (m)</label>
+      <input
+        type="number"
+        id="total-depth"
+        name="totalDepth"
+        class="form-input"
+      />
+    </div>
+    <div class="form-group">
+      <label for="drilling-method">Drilling Method</label>
+      <input
+        type="text"
+        id="drilling-method"
+        name="drillingMethod"
+        class="form-input"
+      />
+    </div>
+    <div class="form-group">
+      <label for="drilling-start">Drilling Start Date</label>
+      <input
+        type="date"
+        id="drilling-start"
+        name="drillingStart"
+        class="form-input"
+      />
+    </div>
+    <div class="form-group">
+      <label for="drilling-end">Drilling End Date</label>
+      <input
+        type="date"
+        id="drilling-end"
+        name="drillingEnd"
+        class="form-input"
+      />
+    </div>
+  </div>
+
+  <!-- 2.1 Installation of Casings and Gravel Pack -->
+  <div class="subsection-card">
+    <h4 class="subsection-title">2.1 Installation of Casings and Gravel Pack</h4>
+    
+    <div class="form-group full-width">
+      <label for="casing-installation-desc">Description</label>
+      <textarea
+        id="casing-installation-desc"
+        name="casingInstallationDesc"
+        class="form-textarea"
+        rows="4"
+      ></textarea>
+    </div>
+
+    <!-- Casing Details Section -->
+    <div class="casing-section">
+      <div class="section-header">
+        <h4>Table 1: Description of types of casings installed at various depths in the borehole</h4>
+        <button
+          type="button"
+          onclick="addCasingRow()"
+          class="btn-add"
+        >
+          <i class="fa-solid fa-plus"></i>
+          Add Casing
+        </button>
+      </div>
+      <div class="casing-table-container">
+        <table class="casing-table">
+          <thead>
+            <tr>
+              <th>Depth in meters</th>
+              <th>Material description</th>
+              <th>Remarks</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="casing-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="form-group full-width">
+      <label for="gravel-pack-desc">Gravel Pack Description</label>
+      <textarea
+        id="gravel-pack-desc"
+        name="gravelPackDesc"
+        class="form-textarea"
+        rows="3"
+      ></textarea>
+    </div>
+  </div>
+
+  <!-- 2.2 Borehole Cleaning/Development -->
+  <div class="subsection-card">
+    <h4 class="subsection-title">2.2 Borehole Cleaning/Development</h4>
+    <div class="form-group full-width">
+      <label for="borehole-cleaning">Development Process</label>
+      <textarea
+        id="borehole-cleaning"
+        name="boreholeCleaning"
+        class="form-textarea"
+        rows="3"
+      ></textarea>
+    </div>
+  </div>
+
+  <!-- 2.3 Test-Pumping -->
+  <div class="subsection-card">
+    <h4 class="subsection-title">2.3 Test-Pumping</h4>
+    <div class="form-group full-width">
+      <label for="test-pumping">Test-Pumping Details</label>
+      <textarea
+        id="test-pumping"
+        name="testPumping"
+        class="form-textarea"
+        rows="3"
+      ></textarea>
+    </div>
+  </div>
+</div>
+             <!-- Borehole Parameters Tab -->
+<div class="tab-content" id="borehole-params-tab">
+  <h3 class="tab-title">3.0 Borehole Parameters</h3>
+  
+  <!-- 3.1 Purpose and Scope -->
+  <div class="subsection-card">
+    <h4 class="subsection-title">3.1 Purpose and Scope</h4>
+    <div class="form-group full-width">
+      <label for="purpose-scope">Description</label>
+      <textarea
+        id="purpose-scope"
+        name="purposeScope"
+        class="form-textarea"
+        rows="6"
+      ></textarea>
+    </div>
+  </div>
+
+  <!-- Aquifer Categorization Text -->
+  <div class="subsection-card">
+    <h4 class="subsection-title">Aquifer Analysis</h4>
+    <div class="form-group full-width">
+      <label for="aquifer-analysis">Aquifer Categorization and Analysis</label>
+      <textarea
+        id="aquifer-analysis"
+        name="aquiferAnalysis"
+        class="form-textarea"
+        rows="4"
+      ></textarea>
+    </div>
+  </div>
+
+  <!-- Aquifer Test Details -->
+  <div class="subsection-card">
+    <h4 class="subsection-title">Aquifer Test Details</h4>
+    <div class="form-group full-width">
+      <label for="aquifer-test-details">Test Description</label>
+      <textarea
+        id="aquifer-test-details"
+        name="aquiferTestDetails"
+        class="form-textarea"
+        rows="3"
+      ></textarea>
+    </div>
+  </div>
+
+  <!-- Recovery Monitoring -->
+  <div class="subsection-card">
+    <h4 class="subsection-title">Recovery Monitoring</h4>
+    <div class="form-group full-width">
+      <label for="recovery-monitoring">Recovery Process</label>
+      <textarea
+        id="recovery-monitoring"
+        name="recoveryMonitoring"
+        class="form-textarea"
+        rows="3"
+      ></textarea>
+    </div>
+  </div>
+
+  <!-- Main Objectives -->
+  <div class="subsection-card">
+    <h4 class="subsection-title">Main Objectives of Analysis</h4>
+    <div class="form-group full-width">
+      <label for="analysis-objectives">Objectives</label>
+      <textarea
+        id="analysis-objectives"
+        name="analysisObjectives"
+        class="form-textarea"
+        rows="6"
+      ></textarea>
+    </div>
+  </div>
+
+  <!-- AQUIFER TEST ANALYSIS TABLE -->
+  <div class="subsection-card">
+    <h4 class="subsection-title">AQUIFER TEST ANALYSIS</h4>
+    
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="aquifer-borehole-depth">Borehole depth</label>
+        <input
+          type="text"
+          id="aquifer-borehole-depth"
+          name="aquiferBoreholeDepth"
+          class="form-input"
+          placeholder="60m"
+        />
+      </div>
+      <div class="form-group">
+        <label for="aquifer-pump-type">Pump type used</label>
+        <input
+          type="text"
+          id="aquifer-pump-type"
+          name="aquiferPumpType"
+          class="form-input"
+          placeholder="DSD3-18 GENSET-20KVA"
+        />
+      </div>
+      <div class="form-group">
+        <label for="aquifer-pump-setting">Pump setting depth</label>
+        <input
+          type="text"
+          id="aquifer-pump-setting"
+          name="aquiferPumpSetting"
+          class="form-input"
+          placeholder="52m"
+        />
+      </div>
+      <div class="form-group">
+        <label for="aquifer-static-level">Static water level</label>
+        <input
+          type="text"
+          id="aquifer-static-level"
+          name="aquiferStaticLevel"
+          class="form-input"
+          placeholder="2.00m"
+        />
+      </div>
+      <div class="form-group">
+        <label for="aquifer-pumping-level">Pumping water level</label>
+        <input
+          type="text"
+          id="aquifer-pumping-level"
+          name="aquiferPumpingLevel"
+          class="form-input"
+          placeholder="12.66m"
+        />
+      </div>
+      <div class="form-group">
+        <label for="aquifer-discharge">Pumped-discharge capacity</label>
+        <input
+          type="text"
+          id="aquifer-discharge"
+          name="aquiferDischarge"
+          class="form-input"
+          placeholder="4m³/hr"
+        />
+      </div>
+      <div class="form-group">
+        <label for="aquifer-cumulative-drawdown">Cumulative drawdown</label>
+        <input
+          type="text"
+          id="aquifer-cumulative-drawdown"
+          name="aquiferCumulativeDrawdown"
+          class="form-input"
+          placeholder="10.66m out of 58.00m"
+        />
+      </div>
+      <div class="form-group">
+        <label for="aquifer-residual-drawdown">Residual draw down (%)</label>
+        <input
+          type="text"
+          id="aquifer-residual-drawdown"
+          name="aquiferResidualDrawdown"
+          class="form-input"
+          placeholder="%"
+        />
+      </div>
+      <div class="form-group">
+        <label for="aquifer-cumulative-percent">Cumulative drawdown (%)</label>
+        <input
+          type="text"
+          id="aquifer-cumulative-percent"
+          name="aquiferCumulativePercent"
+          class="form-input"
+          placeholder="18.4%"
+        />
+      </div>
+      <div class="form-group">
+        <label for="aquifer-recharge-duration">Duration for the recharge (minutes)</label>
+        <input
+          type="text"
+          id="aquifer-recharge-duration"
+          name="aquiferRechargeDuration"
+          class="form-input"
+          placeholder="60minutes"
+        />
+      </div>
+      <div class="form-group">
+        <label for="aquifer-test-duration">Duration of test</label>
+        <input
+          type="text"
+          id="aquifer-test-duration"
+          name="aquiferTestDuration"
+          class="form-input"
+          placeholder="24hours"
+        />
+      </div>
+      <div class="form-group">
+        <label for="aquifer-test-date">Date of test 1</label>
+        <input
+          type="text"
+          id="aquifer-test-date"
+          name="aquiferTestDate"
+          class="form-input"
+          placeholder="13th to 14th of July, 2025"
+        />
+      </div>
+    </div>
+  </div>
+</div>
+
+              <!-- Hydraulics Tab -->
+              <!--<div class="tab-content" id="hydraulics-tab">
+                <h3 class="tab-title">Hydraulic Parameters</h3>
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label for="static-water-level"
+                      >Static Water Level (m)</label
+                    >
+                    <input
+                      type="number"
+                      step="0.01"
+                      id="static-water-level"
+                      name="staticWaterLevel"
+                      class="form-input"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="dynamic-water-level"
+                      >Dynamic Water Level (m)</label
+                    >
+                    <input
+                      type="number"
+                      step="0.01"
+                      id="dynamic-water-level"
+                      name="dynamicWaterLevel"
+                      class="form-input"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="drawdown">Drawdown (m)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      id="drawdown"
+                      name="drawdown"
+                      class="form-input"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="yield">Yield (m³/hr)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      id="yield"
+                      name="yield"
+                      class="form-input"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="specific-capacity"
+                      >Specific Capacity (m³/hr/m)</label
+                    >
+                    <input
+                      type="number"
+                      step="0.01"
+                      id="specific-capacity"
+                      name="specificCapacity"
+                      class="form-input"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="pumping-test-duration"
+                      >Pumping Test Duration (hrs)</label
+                    >
+                    <input
+                      type="number"
+                      id="pumping-test-duration"
+                      name="pumpingTestDuration"
+                      class="form-input"
+                    />
+                  </div>
+                </div>
+              </div>-->
+
+             <!-- Pumping Test Tab -->
+<div class="tab-content" id="pumping-test-tab">
+  <h3 class="tab-title">Pumping Test Data</h3>
+  
+  <!-- Test Pumping Data Header -->
+  <div class="test-pumping-header">
+    <h4 style="text-align: center; margin-bottom: 1.5rem;">TEST PUMPING DATA</h4>
+    
+    <!-- Basic Info Grid -->
+    <div class="pumping-info-grid">
+      <div class="info-row">
+        <div class="info-cell"><strong>Bore hole No</strong></div>
+        <div class="info-cell"><input type="text" id="borehole-no" name="boreholeNo" class="form-input-sm"></div>
+        <div class="info-cell"><strong>Datum level (m)</strong></div>
+        <div class="info-cell"><input type="text" id="datum-level" name="datumLevel" class="form-input-sm" placeholder="0.1"></div>
+      </div>
+      <div class="info-row">
+        <div class="info-cell"><strong>Client Name</strong></div>
+        <div class="info-cell"><input type="text" id="pump-client-name" name="pumpClientName" class="form-input-sm"></div>
+        <div class="info-cell"><strong>Pump level (m)</strong></div>
+        <div class="info-cell"><input type="text" id="pump-level" name="pumpLevel" class="form-input-sm" placeholder="52"></div>
+      </div>
+      <div class="info-row">
+        <div class="info-cell"><strong>Location</strong></div>
+        <div class="info-cell"><input type="text" id="pump-location" name="pumpLocation" class="form-input-sm"></div>
+        <div class="info-cell"><strong>Pump type</strong></div>
+        <div class="info-cell"><input type="text" id="pump-type-test" name="pumpTypeTest" class="form-input-sm" placeholder="DSD3-18"></div>
+      </div>
+      <div class="info-row">
+        <div class="info-cell"><strong>Static water level</strong></div>
+        <div class="info-cell"><input type="text" id="static-level-test" name="staticLevelTest" class="form-input-sm" placeholder="2.00"></div>
+        <div class="info-cell"><span>Metres bgl</span></div>
+        <div class="info-cell"><strong>Pipe type &size</strong></div>
+        <div class="info-cell"><input type="text" id="pipe-type-size" name="pipeTypeSize" class="form-input-sm" placeholder='uPVC 1.25"'></div>
+      </div>
+      <div class="info-row">
+        <div class="info-cell"><strong>Pumping water level</strong></div>
+        <div class="info-cell"><input type="text" id="pumping-level-test" name="pumpingLevelTest" class="form-input-sm" placeholder="12.66"></div>
+        <div class="info-cell"><span>Metres bgl</span></div>
+        <div class="info-cell"><strong>Power source</strong></div>
+        <div class="info-cell"><input type="text" id="power-source" name="powerSource" class="form-input-sm" placeholder="20KVA"></div>
+      </div>
+      <div class="info-row">
+        <div class="info-cell"><strong>Total draw down</strong></div>
+        <div class="info-cell"><input type="text" id="total-drawdown-test" name="totalDrawdownTest" class="form-input-sm" placeholder="10.66"></div>
+        <div class="info-cell"><span>Metres</span></div>
+        <div class="info-cell"><strong>Water column (m)</strong></div>
+        <div class="info-cell"><input type="text" id="water-column" name="waterColumn" class="form-input-sm" placeholder="58.00"></div>
+      </div>
+      <div class="info-row">
+        <div class="info-cell"><strong>Bore hole Depth</strong></div>
+        <div class="info-cell"><input type="text" id="borehole-depth-test" name="boreholeDepthTest" class="form-input-sm" placeholder="60.00"></div>
+        <div class="info-cell"><span>Metres bgl</span></div>
+        <div class="info-cell"></div>
+        <div class="info-cell"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Discharge Draw Down Test Table -->
+  <div class="pumping-test-section">
+    <div class="section-header">
+      <h4 style="text-align: center; margin: 1rem 0;">DISCHARGE DRAW DOWN TEST (24hrs)</h4>
+      <button type="button" onclick="addPumpingTestRow()" class="btn-add">
+        <i class="fa-solid fa-plus"></i> Add Measurement
+      </button>
+    </div>
+    
+    <div class="pumping-test-table-container">
+      <table class="pumping-test-table-detailed">
+        <thead>
+          <tr>
+            <th>DATE</th>
+            <th>CLOCK TIME(hrs)</th>
+            <th>ELAPSED TIME(min)</th>
+            <th>WATER LEVEL (m)</th>
+            <th>DRAW DOWN (m)</th>
+            <th>YIELD (m³/h)</th>
+            <th>EC (w/cm)</th>
+            <th>REMARKS</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="pumping-test-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Graph Section -->
+  <div class="chart-container">
+    <h4 style="text-align: center;">WATER LEVEL VS TIME</h4>
+    <canvas id="pumping-test-chart" width="400" height="200"></canvas>
+  </div>
+</div>
+             <!-- Recovery Data Tab -->
+<div class="tab-content" id="recovery-data-tab">
+  <h3 class="tab-title">Recovery Test Data</h3>
+  
+  <!-- Test Pumping Data Header for Recovery -->
+  <div class="test-pumping-header">
+    <h4 style="text-align: center; margin-bottom: 1.5rem;">TEST PUMPING DATA</h4>
+    
+    <!-- Basic Info Grid -->
+    <div class="pumping-info-grid">
+      <div class="info-row">
+        <div class="info-cell"><strong>Bore hole No</strong></div>
+        <div class="info-cell"><input type="text" id="recovery-borehole-no" name="recoveryBoreholeNo" class="form-input-sm"></div>
+        <div class="info-cell"><strong>Datum level</strong></div>
+        <div class="info-cell"><input type="text" id="recovery-datum-level" name="recoveryDatumLevel" class="form-input-sm" placeholder="0.1"></div>
+      </div>
+      <div class="info-row">
+        <div class="info-cell"><strong>Client Name</strong></div>
+        <div class="info-cell"><input type="text" id="recovery-client-name" name="recoveryClientName" class="form-input-sm"></div>
+        <div class="info-cell"><strong>Pump level</strong></div>
+        <div class="info-cell"><input type="text" id="recovery-pump-level" name="recoveryPumpLevel" class="form-input-sm" placeholder="52"></div>
+      </div>
+      <div class="info-row">
+        <div class="info-cell"><strong>Location</strong></div>
+        <div class="info-cell"><input type="text" id="recovery-location" name="recoveryLocation" class="form-input-sm"></div>
+        <div class="info-cell"><strong>Pump type</strong></div>
+        <div class="info-cell"><input type="text" id="recovery-pump-type" name="recoveryPumpType" class="form-input-sm" placeholder="DSD3-18"></div>
+      </div>
+      <div class="info-row">
+        <div class="info-cell"><strong>Static water level</strong></div>
+        <div class="info-cell"><input type="text" id="recovery-static-level" name="recoveryStaticLevel" class="form-input-sm" placeholder="2.00"></div>
+        <div class="info-cell"><strong>Pipe type &size</strong></div>
+        <div class="info-cell"><input type="text" id="recovery-pipe-type" name="recoveryPipeType" class="form-input-sm" placeholder='uPVC 1.25"'></div>
+      </div>
+      <div class="info-row">
+        <div class="info-cell"><strong>Pumping water level</strong></div>
+        <div class="info-cell"><input type="text" id="recovery-pumping-level" name="recoveryPumpingLevel" class="form-input-sm" placeholder="12.66"></div>
+        <div class="info-cell"><strong>Power source</strong></div>
+        <div class="info-cell"><input type="text" id="recovery-power-source" name="recoveryPowerSource" class="form-input-sm" placeholder="20KVA"></div>
+      </div>
+      <div class="info-row">
+        <div class="info-cell"><strong>Total draw down</strong></div>
+        <div class="info-cell"><input type="text" id="recovery-total-drawdown" name="recoveryTotalDrawdown" class="form-input-sm" placeholder="10.66"></div>
+        <div class="info-cell"><strong>Water column</strong></div>
+        <div class="info-cell"><input type="text" id="recovery-water-column" name="recoveryWaterColumn" class="form-input-sm" placeholder="58.00"></div>
+      </div>
+      <div class="info-row">
+        <div class="info-cell"><strong>Bore hole Depth</strong></div>
+        <div class="info-cell"><input type="text" id="recovery-borehole-depth" name="recoveryBoreholeDepth" class="form-input-sm" placeholder="60.00"></div>
+        <div class="info-cell"></div>
+        <div class="info-cell"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recovery Measurement Table -->
+  <div class="recovery-data-section">
+    <div class="section-header">
+      <h4 style="text-align: center; margin: 1rem 0;">RECOVERY MEASUREMENT 24 HRS</h4>
+      <button type="button" onclick="addRecoveryDataRow()" class="btn-add">
+        <i class="fa-solid fa-plus"></i> Add Measurement
+      </button>
+    </div>
+    
+    <div class="recovery-data-table-container">
+      <table class="recovery-data-table-detailed">
+        <thead>
+          <tr>
+            <th>DATE</th>
+            <th>CLOCK TIME(hrs)</th>
+            <th>ELAPSED TIME(min)</th>
+            <th>WATER LEVEL(m)</th>
+            <th>RECOVERY (m)</th>
+            <th>EFFICIENCY%</th>
+            <th>COMMENT</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="recovery-data-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Recovery Analysis Text -->
+  <div class="subsection-card">
+    <div class="form-group full-width">
+      <label for="recovery-analysis">Recovery Analysis</label>
+      <textarea
+        id="recovery-analysis"
+        name="recoveryAnalysis"
+        class="form-textarea"
+        rows="3"
+        placeholder="The recovery was recorded for 60minutes and was discovered that it was recovered to 8.02m out of the total drawdown of 10.66m that was translated to 62.29%"
+      ></textarea>
+    </div>
+  </div>
+
+  <!-- Graph Section -->
+  <div class="chart-container">
+    <h4 style="text-align: center;">RESIDUAL DRAWDOWN VS TIME</h4>
+    <canvas id="recovery-data-chart" width="400" height="200"></canvas>
+  </div>
+</div>
+           <!-- Calculations Tab -->
+<div class="tab-content" id="water-quality-tab">
+  <h3 class="tab-title">Calculations</h3>
+  
+  <!-- TRANSMISSIVITY OF THE AQUIFER -->
+  <div class="subsection-card">
+    <h4 class="subsection-title">TRANSMISSIVITY OF THE AQUIFER</h4>
+    
+    <div class="form-group full-width">
+      <label for="transmissivity-intro">Introduction</label>
+      <textarea
+        id="transmissivity-intro"
+        name="transmissivityIntro"
+        class="form-textarea"
+        rows="3"
+      ></textarea>
+    </div>
+
+    <div class="form-group full-width">
+      <label for="transmissivity-formula">Formula and Calculation</label>
+      <textarea
+        id="transmissivity-formula"
+        name="transmissivityFormula"
+        class="form-textarea calculation-text"
+        rows="10"
+      ></textarea>
+    </div>
+
+    <div class="form-group full-width">
+      <label for="transmissivity-conclusion">Conclusion</label>
+      <textarea
+        id="transmissivity-conclusion"
+        name="transmissivityConclusion"
+        class="form-textarea"
+        rows="2"
+      ></textarea>
+    </div>
+  </div>
+
+  <!-- SPECIFIC CAPACITY -->
+  <div class="subsection-card">
+    <h4 class="subsection-title">SPECIFIC CAPACITY</h4>
+    
+    <div class="form-group full-width">
+      <label for="specific-capacity-intro">Introduction</label>
+      <textarea
+        id="specific-capacity-intro"
+        name="specificCapacityIntro"
+        class="form-textarea"
+        rows="3"
+      ></textarea>
+    </div>
+
+    <div class="form-group full-width">
+      <label for="specific-capacity-formula">Formula and Calculation</label>
+      <textarea
+        id="specific-capacity-formula"
+        name="specificCapacityFormula"
+        class="form-textarea calculation-text"
+        rows="6"
+      ></textarea>
+    </div>
+
+    <div class="form-group full-width">
+      <label for="specific-capacity-conclusion">Conclusion</label>
+      <textarea
+        id="specific-capacity-conclusion"
+        name="specificCapacityConclusion"
+        class="form-textarea"
+        rows="2"
+      ></textarea>
+    </div>
+  </div>
+
+  <!-- PUMP SAFE DESIGN -->
+  <div class="subsection-card">
+    <h4 class="subsection-title">PUMP SAFE DESIGN</h4>
+    
+    <div class="form-group full-width">
+      <label for="pump-safe-intro">Introduction</label>
+      <textarea
+        id="pump-safe-intro"
+        name="pumpSafeIntro"
+        class="form-textarea"
+        rows="3"
+      ></textarea>
+    </div>
+
+    <div class="form-group full-width">
+      <label for="pump-safe-formula">Formula and Calculation</label>
+      <textarea
+        id="pump-safe-formula"
+        name="pumpSafeFormula"
+        class="form-textarea calculation-text"
+        rows="4"
+      ></textarea>
+    </div>
+
+    <div class="form-group full-width">
+      <label for="pump-safe-conclusion">Conclusion</label>
+      <textarea
+        id="pump-safe-conclusion"
+        name="pumpSafeConclusion"
+        class="form-textarea"
+        rows="2"
+      ></textarea>
+    </div>
+  </div>
+</div>
+
+              <!-- Recommendations Tab -->
+              <div class="tab-content" id="recommendations-tab">
+                <h3 class="tab-title">Recommendations & Conclusions</h3>
+                <div class="form-grid">
+                  <div class="form-group full-width">
+                    <label for="recommendations">Recommendations</label>
+                    <textarea
+                      id="recommendations"
+                      name="recommendations"
+                      class="form-textarea"
+                      rows="6"
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="conclusions">Conclusions</label>
+                    <textarea
+                      id="conclusions"
+                      name="conclusions"
+                      class="form-textarea"
+                      rows="4"
+                    ></textarea>
+                  </div>
+                  <div class="form-group full-width">
+                    <label for="prepared-by">Prepared By</label>
+                    <input
+                      type="text"
+                      id="prepared-by"
+                      name="preparedBy"
+                      class="form-input"
+                    />
+                  </div>
+                  <div class="form-group">
+                    <label for="report-date">Report Date</label>
+                    <input
+                      type="date"
+                      id="report-date"
+                      name="reportDate"
+                      class="form-input"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- generate-section -->
+            <div class="generate-section">
+              <div class="generate-buttons">
+                <button
+                  onclick="saveDraft()"
+                  class="btn-save-draft"
+                  id="save-draft-btn"
+                >
+                  <i class="fa-solid fa-floppy-disk"></i>
+                  Save Draft
+                </button>
+                <button
+                  onclick="completeReport()"
+                  class="btn-complete"
+                  id="complete-btn"
+                >
+                  <i class="fa-solid fa-check"></i>
+                  Mark as Complete
+                </button>
+                <button onclick="generateReport()" class="btn-generate">
+                  <i class="fa-solid fa-file-text"></i>
+                  Generate Report
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Preview Section -->
+          <div class="preview-section">
+            <div class="preview-header">
+              <h3>Report Preview</h3>
+              <div class="preview-actions">
+                <button
+                  onclick="printReport()"
+                  class="btn-print"
+                  id="print-btn"
+                  disabled
+                >
+                  <i class="fa-solid fa-print"></i>
+                  Print Report
+                </button>
+                <button
+                  onclick="downloadPDF()"
+                  class="btn-download"
+                  id="download-btn"
+                  disabled
+                >
+                  <i class="fa-solid fa-download"></i>
+                  Download PDF
+                </button>
+              </div>
+            </div>
+            <div class="preview-content" id="preview-content">
+              <p class="preview-placeholder">
+                Generate a report to see the preview here.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- Reports Management -->
+    <div id="reports-management" class="reports-management hidden">
+      <div class="container">
+        <h2>My Reports</h2>
+        <div class="reports-tabs">
+          <button class="reports-tab active" data-tab="drafts">Drafts</button>
+          <button class="reports-tab" data-tab="completed">
+            Completed Reports
+          </button>
+        </div>
+
+        <div id="drafts-list" class="reports-list">
+          <!-- Drafts will be loaded here -->
+        </div>
+
+        <div id="completed-list" class="reports-list hidden">
+          <!-- Completed reports will be loaded here -->
+        </div>
+      </div>
+    </div>
+    <!-- ===== Footer ===== -->
+    <footer>
+      <h3>Booker Investment Group Ltd</h3>
+      <div>
+        <a href="index.html" class="chip"
+          ><i class="fa-solid fa-droplet"></i> Clean Water Systems</a
+        >
+      </div>
+      <div class="copyright">
+        &copy; <span id="year"></span> Booker Investment Group Ltd. All rights
+        reserved.
+      </div>
+    </footer>
+    <script src="script.js"></script>
+  </body>
+</html>

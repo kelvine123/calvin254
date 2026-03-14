@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dynamic Receipt - Booker Investment Group Ltd</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --blue:#47B2E4;
+      --blue-ink:#003366;
+      --text:#333;
+      --bg:#fff;
+      --shadow:0 8px 22px rgba(0,0,0,.06);
+    }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      font-size: 0.9rem;
+    }
+    
+
+    h2 {
+      text-align: center;
+      color: var(--blue-ink);
+    }
+
+    .wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      padding: 20px;
+    }
+
+    .form-section, .container {
+      width: min(400px, 95%);
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 25px;
+    }
+
+    .form-section input, .form-section select {
+      width: 100%;
+      padding: 8px;
+      margin: 6px 0 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .form-section button {
+      display: inline-block;
+      background: var(--blue);
+      color: #000;
+      padding: 0.6rem 1.2rem;
+      border: none;
+      border-radius: 999px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: .2s ease;
+    }
+
+    .form-section button:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .clear-btn {
+      background: #f44336;
+      color: #fff;
+    }
+
+    /* Receipt Styles */
+    .container {
+      transform: translateX(20px);
+    }
+
+    .receipt-header {
+      text-align: center;
+      border-bottom: 2px solid var(--blue);
+      padding-bottom: 15px;
+      margin-bottom: 20px;
+    }
+
+    .receipt-header img {
+      height: 70px;
+      width: auto;
+      display: block;
+      margin: 0 auto 10px;
+    }
+
+    .brand-name {
+      font-weight: 900;
+      color: var(--blue-ink);
+      font-size: 1.1rem;
+    }
+
+    .brand-tag {
+      font-family: "mistral", cursive;
+      color: #083a66;
+      font-weight: 700;
+      font-size: 0.9rem;
+      margin-top: 2px;
+    }
+
+    .receipt-info {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+
+    .receipt-info div {
+      margin-bottom: 6px;
+    }
+
+    .receipt-info strong {
+      color: var(--blue-ink);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+      font-size: 0.85rem;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background: var(--blue);
+      color: #000;
+    }
+
+    tr:nth-child(even) { background: #f7f9fb; }
+
+    .total {
+      text-align: right;
+      font-size: 0.9rem;
+      margin-top: 10px;
+    }
+
+    .total strong {
+      color: var(--blue-ink);
+      font-size: 1rem;
+    }
+
+    .vat-option {
+      display: inline-flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 5px;
+      font-size: 0.85rem;
+    }
+
+    .receipt-footer {
+      text-align: center;
+      border-top: 2px solid var(--blue);
+      padding-top: 15px;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: #444;
+    }
+
+    .btn-print, .btn-download {
+      display: inline-flex;
+      align-items: center;
+      gap: .5rem;
+      background: var(--blue);
+      color: #000;
+      padding: .6rem 1.2rem;
+      border: none;
+      border-radius: 999px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: var(--shadow);
+      transition: .2s ease;
+      margin: 5px;
+      font-size: 0.85rem;
+    }
+
+    .btn-print:hover, .btn-download:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+    }
+
+    @media print {
+      .form-section, .btn-print, .btn-download { display: none; }
+      .container { box-shadow: none; transform: none; border: none; }
+      body { background: #fff; }
+    }
+  </style>
+</head>
+<body>
+  
+</header>
+
+
+  <div class="wrapper">
+    <!-- Input Form -->
+    <div class="form-section">
+      <h2>Enter Receipt Details</h2>
+      <label>Receipt No:</label>
+      <input type="text" id="rNo" value="000123">
+      <label>Date:</label>
+      <input type="date" id="rDate" value="2025-10-19">
+      <label>Customer Name:</label>
+      <input type="text" id="rName" value="John Doe">
+      <label>Phone:</label>
+      <input type="text" id="rPhone" value="+254 712 345 678">
+
+      <h3>Add Item</h3>
+      <label>Description:</label>
+      <input type="text" id="desc" placeholder="e.g. Borehole Drilling Service">
+      <label>Quantity:</label>
+      <input type="number" id="qty" value="1">
+      <label>Unit Price (Ksh):</label>
+      <input type="number" id="price" value="250000">
+
+      <div class="btn-group">
+        <button onclick="addItem()">Add Item</button>
+        <button class="clear-btn" onclick="clearFields()">Clear Fields</button>
+      </div>
+    </div>
+
+    <!-- Receipt Preview -->
+    <div class="container" id="receipt">
+      <div class="receipt-header">
+        <img src="images/BKM.png" alt="Booker Investment Group Logo">
+        <div class="brand-name">BOOKER INVESTMENT GROUP LTD</div>
+        <div class="brand-tag">Engineering Solutions to Better Life</div>
+      </div>
+
+      <div class="receipt-info">
+        <div><strong>Receipt No:</strong> <span id="displayNo">000123</span></div>
+        <div><strong>Date:</strong> <span id="displayDate">October 19, 2025</span></div>
+        <div><strong>Issued To:</strong> <span id="displayName">John Doe</span></div>
+        <div><strong>Phone:</strong> <span id="displayPhone">+254 712 345 678</span></div>
+      </div>
+
+      <table id="itemsTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Description</th>
+            <th>Quantity</th>
+            <th>Unit Price (Ksh)</th>
+            <th>Total (Ksh)</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <div class="total" id="totals">
+        Subtotal: <strong>Ksh 0</strong><br/>
+        <div class="vat-option">
+          <input type="checkbox" id="vatCheck" checked title="Apply VAT">VAT (16%): 
+        </div>
+        <hr style="border: none; border-top: 1px solid #ddd;"><strong id="vatValue">Ksh 0</strong>
+          
+       
+     
+     
+        
+
+      <div class="receipt-footer">
+        <p>Thank you for choosing Booker Investment Group Ltd.</p>
+        <p>For inquiries, call <strong>0722 536 867</strong> or email <strong>bookerinvestmentgroup2018@gmail.com</strong></p>
+
+        <button class="btn-print" onclick="window.print()">
+          <i class="fa-solid fa-print"></i> Print
+        </button>
+        <button class="btn-download" onclick="exportToPDF()">
+          <i class="fa-solid fa-file-pdf"></i> Download PDF
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script>
+    let items = [];
+
+    function updateReceiptHeader() {
+      document.getElementById('displayNo').textContent = document.getElementById('rNo').value;
+      document.getElementById('displayDate').textContent = new Date(document.getElementById('rDate').value).toDateString();
+      document.getElementById('displayName').textContent = document.getElementById('rName').value;
+      document.getElementById('displayPhone').textContent = document.getElementById('rPhone').value;
+    }
+
+    document.querySelectorAll('#rNo, #rDate, #rName, #rPhone').forEach(input => {
+      input.addEventListener('input', updateReceiptHeader);
+    });
+
+    function addItem() {
+      const desc = document.getElementById('desc').value.trim();
+      const qty = parseFloat(document.getElementById('qty').value);
+      const price = parseFloat(document.getElementById('price').value);
+
+      if (!desc || qty <= 0 || price <= 0) return alert('Please enter valid item details.');
+
+      items.push({ desc, qty, price });
+      renderTable();
+      clearFields(false);
+    }
+
+    function clearFields(full = true) {
+      document.getElementById('desc').value = '';
+      document.getElementById('qty').value = 1;
+      document.getElementById('price').value = '';
+
+      if (full) {
+        document.getElementById('rNo').value = '';
+        document.getElementById('rDate').value = '';
+        document.getElementById('rName').value = '';
+        document.getElementById('rPhone').value = '';
+        document.getElementById('vatCheck').checked = true;
+        items = [];
+        renderTable();
+        updateReceiptHeader();
+      }
+    }
+
+    function renderTable() {
+      const tbody = document.querySelector('#itemsTable tbody');
+      tbody.innerHTML = '';
+      let subtotal = 0;
+
+      items.forEach((item, index) => {
+        const total = item.qty * item.price;
+        subtotal += total;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${item.desc}</td>
+          <td>${item.qty}</td>
+          <td>${item.price.toLocaleString()}</td>
+          <td>${total.toLocaleString()}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const applyVAT = document.getElementById('vatCheck').checked;
+      const vat = applyVAT ? subtotal * 0.16 : 0;
+      const grand = subtotal + vat;
+
+      document.getElementById('vatValue').textContent = `Ksh ${vat.toLocaleString()}`;
+      document.getElementById('totals').querySelector('strong:last-of-type').textContent = `Grand Total: Ksh ${grand.toLocaleString()}`;
+      document.getElementById('totals').querySelector('strong').textContent = `Ksh ${subtotal.toLocaleString()}`;
+    }
+
+    document.getElementById('vatCheck').addEventListener('change', renderTable);
+
+    // PDF Export
+    function exportToPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+      const receipt = document.getElementById('receipt');
+      const clone = receipt.cloneNode(true);
+      clone.querySelectorAll('button').forEach(btn => btn.remove());
+
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'fixed';
+      tempDiv.style.left = '-9999px';
+      tempDiv.appendChild(clone);
+      document.body.appendChild(tempDiv);
+
+      html2canvas(clone, { scale: 2 }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdfWidth = doc.internal.pageSize.getWidth();
+        const imgWidth = pdfWidth * 0.85;
+        const imgHeight = (canvas.height * imgWidth) / canvas.width;
+        const xOffset = pdfWidth * 0.075;
+        const yOffset = 10;
+
+        doc.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
+        doc.save("Receipt_BookerInvestmentGroup.pdf");
+        document.body.removeChild(tempDiv);
+      });
+    }
+  </script>
+</body>
+</html>
