@@ -7,6 +7,10 @@
     <title>Booker Investment Group Ltd</title>
 
     <meta name="description" content="Booker Dr — professional well drilling, well pump services, hydrofracking, and geothermal services. Licensed & insured. Free estimates.">
+    <meta name="keywords"
+        content="Borehole drilling Kenya, water drilling,
+        pump installation, borehole services Kenya,
+        Booker Investment Group">
 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
 
@@ -579,15 +583,25 @@
     </footer>
 
     <script>
-        document.getElementById('year').textContent = new Date().getFullYear();
 
-        const currentPage = window.location.pathname.split("/").pop();
+        window.addEventListener("DOMContentLoaded", () => {
 
-        document.querySelectorAll(".menu a").forEach(link => {
-            if (link.getAttribute("href") === currentPage) {
-                link.classList.add("active");
-            }
+            document.getElementById('year').textContent =
+                new Date().getFullYear();
+
+            const currentPage =
+                window.location.pathname.split("/").pop() || "index.html";
+
+            document.querySelectorAll(".menu a").forEach(link => {
+
+                if(link.getAttribute("href") === currentPage){
+                 link.classList.add("active");
+                }
+
+            });
+
         });
+
     </script>
 
 </body>
