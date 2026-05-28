@@ -154,6 +154,7 @@
             position: absolute;
             inset: 0;
             background: rgba(0, 0, 0, .55);
+            z-index: 1;
         }
         
         .hero-content {
@@ -270,6 +271,14 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        @media(max-width:700px){
+             .menu{
+               flex-wrap: wrap;
+               gap: 12px;
+               padding: 10px 0;
+            }
+        }
         /* ===== Footer ===== */
         
         footer {
@@ -305,7 +314,7 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    z-index: -1;
+    z-index: 0;
 }
 
 .hero-content{
@@ -478,8 +487,9 @@
 
         </div>
     </section>
-    <!-- Consultation -->
-    <section id="consultation" class="container">
+    
+    <!-- Installation -->
+    <section id="installation" class="container">
         <div class="service">
 
             <div class="service-img">
